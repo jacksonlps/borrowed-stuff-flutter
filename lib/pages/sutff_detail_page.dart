@@ -1,6 +1,8 @@
 import 'package:borrowed_stuff/helpers/validator.dart';
+import 'package:brasil_fields/formatter/telefone_input_formatter.dart';
 import 'package:datetime_picker_formfield/datetime_picker_formfield.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 
 import 'package:borrowed_stuff/components/back_dialog.dart';
@@ -24,6 +26,8 @@ class _StuffDetailPageState extends State<StuffDetailPage> {
   final _dateController = TextEditingController();
   final _descriptionController = TextEditingController();
   final _nameController = TextEditingController();
+  final _phoneController = TextEditingController();
+
   final _dateFormat = DateFormat('dd/MM/yyyy');
 
   var _currentStuff = Stuff();
@@ -36,6 +40,7 @@ class _StuffDetailPageState extends State<StuffDetailPage> {
       _dateController.text = _dateFormat.format(_currentStuff.loanDate);
       _descriptionController.text = _currentStuff.description;
       _nameController.text = _currentStuff.contactName;
+      _phoneController.text = _currentStuff.phone;
     }
   }
 
@@ -44,6 +49,7 @@ class _StuffDetailPageState extends State<StuffDetailPage> {
     _dateController.clear();
     _descriptionController.clear();
     _nameController.clear();
+    _phoneController.clear();
     super.dispose();
   }
 
@@ -90,6 +96,7 @@ class _StuffDetailPageState extends State<StuffDetailPage> {
           _buildDateInputField(),
           _buildDescriptionInputField(),
           _buildNameInputField(),
+          _buildPhoneInputField(),
           _buildConfirmButton(),
         ],
       ),
@@ -158,6 +165,28 @@ class _StuffDetailPageState extends State<StuffDetailPage> {
     );
   }
 
+  _buildPhoneInputField({Function(String) onSaved}) {
+    return TextFormField(
+      decoration: InputDecoration(
+        icon: Icon(Icons.phone),
+        labelText: 'Contato',
+      ),
+      inputFormatters: [
+        WhitelistingTextInputFormatter.digitsOnly,
+        TelefoneInputFormatter()
+      ],
+      onSaved: (value) {
+        setState(() {
+          _currentStuff.contactName = value;
+        });
+      },
+      controller: _phoneController,
+      validator: (value) {
+        return _phoneNumberValidator(value);
+      },
+    );
+  }
+
   _buildConfirmButton() {
     return Padding(
       padding: EdgeInsets.symmetric(vertical: 32.0),
@@ -183,5 +212,14 @@ class _StuffDetailPageState extends State<StuffDetailPage> {
         },
       ),
     );
+  }
+
+  String _phoneNumberValidator(String value) {
+    Pattern pattern = r'^\([0-9]{2}\) [0-9]{4,5}-[0-9]{4}$';
+    RegExp regex = new RegExp(pattern);
+    if (!regex.hasMatch(value))
+      return 'Enter Valid Phone Number';
+    else
+      return null;
   }
 }
