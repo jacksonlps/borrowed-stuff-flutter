@@ -105,28 +105,25 @@ class _StuffDetailPageState extends State<StuffDetailPage> {
 
   _buildDateInputField() {
     return DateTimeField(
-      decoration: InputDecoration(
-        icon: Icon(Icons.date_range),
-        labelText: 'Data do empréstimo',
-      ),
-      format: _dateFormat,
-      initialValue: _currentStuff.loanDate,
-      onShowPicker: (context, currentValue) {
-        return showDatePicker(
-          context: context,
-          firstDate: DateTime(1900),
-          initialDate: currentValue ?? DateTime.now(),
-          lastDate: DateTime(2100),
-        );
-      },
-      controller: _dateController,
-      onChanged: (date) {
-        _currentStuff.loanDate = date;
-      },
-      validator: (date) {
-        return Validator.isEmptyDate(date);
-      },
-    );
+        decoration: InputDecoration(
+          icon: Icon(Icons.date_range),
+          labelText: 'Data do empréstimo',
+        ),
+        format: _dateFormat,
+        initialValue: _currentStuff.loanDate,
+        onShowPicker: (context, currentValue) {
+          return showDatePicker(
+            context: context,
+            firstDate: DateTime(1900),
+            initialDate: currentValue ?? DateTime.now(),
+            lastDate: DateTime(2100),
+          );
+        },
+        controller: _dateController,
+        onChanged: (date) {
+          _currentStuff.loanDate = date;
+        },
+        validator: Validator.dateValidator);
   }
 
   _buildDescriptionInputField({Function(String) onSaved}) {
@@ -182,7 +179,7 @@ class _StuffDetailPageState extends State<StuffDetailPage> {
       },
       controller: _phoneController,
       validator: (value) {
-        return _phoneNumberValidator(value);
+        return Validator.phoneNumberValidator(value);
       },
     );
   }
@@ -212,14 +209,5 @@ class _StuffDetailPageState extends State<StuffDetailPage> {
         },
       ),
     );
-  }
-
-  String _phoneNumberValidator(String value) {
-    Pattern pattern = r'^\([0-9]{2}\) [0-9]{4,5}-[0-9]{4}$';
-    RegExp regex = new RegExp(pattern);
-    if (!regex.hasMatch(value))
-      return 'Enter Valid Phone Number';
-    else
-      return null;
   }
 }
