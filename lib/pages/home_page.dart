@@ -4,8 +4,11 @@ import 'package:borrowed_stuff/components/stuff_card.dart';
 import 'package:borrowed_stuff/controllers/home_controller.dart';
 import 'package:borrowed_stuff/models/stuff.dart';
 import 'package:borrowed_stuff/pages/sutff_detail_page.dart';
+import 'package:borrowed_stuff/services/CallsAndMessagesService.dart';
 import 'package:flushbar/flushbar.dart';
 import 'package:flutter/material.dart';
+
+import '../service_locator.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -15,8 +18,8 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   final _controller = HomeController();
   bool _loading = true;
-
   final GlobalKey<AnimatedListState> _animatedListKey = GlobalKey();
+  final CallsAndMessagesService _service = locator<CallsAndMessagesService>();
 
   @override
   void initState() {
@@ -64,7 +67,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _buildItem(context, index, animation) {
-    final stuff = _controller.stuffList[index];
+    final Stuff stuff = _controller.stuffList[index];
     return SizeTransition(
       sizeFactor: animation,
       child: StuffCard(
@@ -74,6 +77,12 @@ class _HomePageState extends State<HomePage> {
         },
         onEdit: () {
           _editStuff(index, stuff);
+        },
+        onCall: () {
+          final String phone =
+              stuff.phone.replaceAll(new RegExp('[(,),-]'), '');
+          print(phone);
+          _service.call(stuff.phone);
         },
       ),
     );

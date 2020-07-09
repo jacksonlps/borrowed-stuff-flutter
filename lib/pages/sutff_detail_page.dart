@@ -174,7 +174,7 @@ class _StuffDetailPageState extends State<StuffDetailPage> {
       ],
       onSaved: (value) {
         setState(() {
-          _currentStuff.contactName = value;
+          _currentStuff.phone = value;
         });
       },
       controller: _phoneController,
