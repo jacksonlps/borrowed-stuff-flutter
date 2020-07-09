@@ -16,6 +16,8 @@ class _HomePageState extends State<HomePage> {
   final _controller = HomeController();
   bool _loading = true;
 
+  final GlobalKey<AnimatedListState> _animatedListKey = GlobalKey();
+
   @override
   void initState() {
     super.initState();
@@ -54,20 +56,26 @@ class _HomePageState extends State<HomePage> {
       return CenteredMessage('Vazio', icon: Icons.warning);
     }
 
-    return ListView.builder(
-      itemCount: _controller.stuffList.length,
-      itemBuilder: (context, index) {
-        final stuff = _controller.stuffList[index];
-        return StuffCard(
-          stuff: stuff,
-          onDelete: () {
-            _deleteStuff(stuff);
-          },
-          onEdit: () {
-            _editStuff(index, stuff);
-          },
-        );
-      },
+    return AnimatedList(
+      key: _animatedListKey,
+      initialItemCount: _controller.stuffList.length,
+      itemBuilder: _buildItem,
+    );
+  }
+
+  Widget _buildItem(context, index, animation) {
+    final stuff = _controller.stuffList[index];
+    return SizeTransition(
+      sizeFactor: animation,
+      child: StuffCard(
+        stuff: stuff,
+        onDelete: () {
+          _deleteStuff(index);
+        },
+        onEdit: () {
+          _editStuff(index, stuff);
+        },
+      ),
     );
   }
 
@@ -81,6 +89,8 @@ class _HomePageState extends State<HomePage> {
     if (stuff != null) {
       setState(() {
         _controller.create(stuff);
+        _animatedListKey.currentState
+            .insertItem(1, duration: Duration(seconds: 1));
       });
 
       Flushbar(
@@ -115,11 +125,19 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  _deleteStuff(Stuff stuff) {
+  _deleteStuff(int index) {
     print('Delete stuff');
-    setState(() {
-      _controller.delete(stuff);
-    });
+
+    Stuff stuff = _controller.stuffList[index];
+
+    AnimatedListRemovedItemBuilder builder = (context, animation) {
+      return _buildItem(context, index, animation);
+    };
+
+    _animatedListKey.currentState
+        .removeItem(index, builder, duration: Duration(seconds: 1));
+
+    _controller.delete(stuff);
 
     Flushbar(
       title: "Exclusão",
