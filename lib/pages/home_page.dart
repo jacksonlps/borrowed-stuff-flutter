@@ -82,7 +82,7 @@ class _HomePageState extends State<HomePage> {
           final String phone =
               stuff.phone.replaceAll(new RegExp('[(,),-]'), '');
           print(phone);
-          _service.call(stuff.phone);
+          if (phone.isNotEmpty) _service.call(stuff.phone);
         },
       ),
     );
